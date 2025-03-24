@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ürün Detayları</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2a2a2a;
+        }
+        .product-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .product-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .product-features {
+            margin-bottom: 30px;
+        }
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2a2a2a;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .feature-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .feature-list li:before {
+            content: "✓";
+            color: #4CAF50;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .product-specs {
+            margin-bottom: 30px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .spec-row {
+            display: flex;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+        .spec-name, .spec-value {
+            padding: 12px 15px;
+        }
+        .spec-name {
+            width: 30%;
+            background-color: #f9f9f9;
+            font-weight: bold;
+            border-right: 1px solid #e1e1e1;
+        }
+        .spec-value {
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="product-title">Ürün Adı - Model XYZ123</div>
+        
+        <div class="product-images">
+            <img src="https://via.placeholder.com/600x400.png?text=Urun+Gorseli+1" alt="Ürün Görseli 1" class="product-image">
+            <img src="https://via.placeholder.com/600x400.png?text=Urun+Gorseli+2" alt="Ürün Görseli 2" class="product-image">
+        </div>
+        
+        <div class="product-features">
+            <div class="feature-title">Özellikler</div>
+            <ul class="feature-list">
+                <li>Yüksek performanslı ve dayanıklı yapı</li>
+                <li>Enerji tasarruflu çalışma sistemi</li>
+                <li>Akıllı telefon ile uzaktan kontrol</li>
+                <li>Kompakt tasarım, her alana uyum sağlar</li>
+                <li>2 yıl garanti</li>
+            </ul>
+        </div>
+        
+        <div class="product-specs">
+            <div class="spec-row">
+                <div class="spec-name">Marka</div>
+                <div class="spec-value">Sizin Markanız</div>
+            </div>
+            <div class="spec-row">
+                <div class="spec-name">Model</div>
+                <div class="spec-value">XYZ123</div>
+            </div>
+            <div class="spec-row">
+                <div class="spec-name">Boyutlar</div>
+                <div class="spec-value">45 x 30 x 15 cm</div>
+            </div>
+            <div class="spec-row">
+                <div class="spec-name">Ağırlık</div>
+                <div class="spec-value">2.5 kg</div>
+            </div>
+            <div class="spec-row">
+                <div class="spec-name">Renk</div>
+                <div class="spec-value">Siyah / Beyaz</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Otomatik yükseklik ayarlama için
+        window.onload = function() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({
+                type: 'setHeight',
+                height: height
+            }, '*');
+        };
+    </script>
+</body>
+</html> 

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ürün Detayları</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2a2a2a;
+        }
+        .product-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .product-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .product-features {
+            margin-bottom: 30px;
+        }
+        .feature-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2a2a2a;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .feature-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .feature-list li:before {
+            content: "✓";
+            color: #4CAF50;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .product-specs {
+            margin-bottom: 30px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .spec-row {
+            display: flex;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+        .spec-name, .spec-value {
+            padding: 12px 15px;
+        }
+        .spec-name {
+            width: 30%;
+            background-color: #f9f9f9;
+            font-weight: bold;
+            border-right: 1px solid #e1e1e1;
+        }
+        .spec-value {
+            width: 70%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="product-container">
+        <div class="loading">Ürün bilgileri yükleniyor...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL'den ürün ID'sini al
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (!productId) {
+                document.getElementById('product-container').innerHTML = '<p>Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
+                return;
+            }
+            
+            // Ürün verilerini al
+            const productData = getProductData(productId);
+            renderProduct(productData);
+            
+            // İframe yüksekliğini ayarla
+            setTimeout(function() {
+                const height = document.body.scrollHeight;
+                window.parent.postMessage({
+                    type: 'setHeight',
+                    height: height
+                }, '*');
+            }, 100);
+        });
+        
+        function getProductData(productId) {
+            // Bu fonksiyon normalde bir API'dan veri çekerdi
+            // Burada örnek veri kullanıyoruz
+            const products = {
+                '8681987831287': {
+                    name: 'Örnek Ürün 1',
+                    model: 'XYZ123',
+                    images: [
+                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+1',
+                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+2'
+                    ],
+                    features: [
+                        'Yüksek performanslı ve dayanıklı yapı',
+                        'Enerji tasarruflu çalışma sistemi',
+                        'Akıllı telefon ile uzaktan kontrol',
+                        'Kompakt tasarım, her alana uyum sağlar',
+                        '2 yıl garanti'
+                    ],
+                    specs: {
+                        'Marka': 'Sizin Markanız',
+                        'Model': 'XYZ123',
+                        'Boyutlar': '45 x 30 x 15 cm',
+                        'Ağırlık': '2.5 kg',
+                        'Renk': 'Siyah / Beyaz'
+                    }
+                },
+                '8681987831288': {
+                    name: 'Örnek Ürün 2',
+                    model: 'ABC456',
+                    images: [
+                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+3',
+                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+4'
+                    ],
+                    features: [
+                        'Ultra hafif tasarım',
+                        'Hızlı şarj teknolojisi',
+                        'Su geçirmez yapı',
+                        'Gelişmiş ses sistemi',
+                        '3 yıl garanti'
+                    ],
+                    specs: {
+                        'Marka': 'Sizin Markanız',
+                        'Model': 'ABC456',
+                        'Boyutlar': '20 x 10 x 5 cm',
+                        'Ağırlık': '0.8 kg',
+                        'Renk': 'Mavi / Gri'
+                    }
+                }
+            };
+            
+            return products[productId] || null;
+        }
+        
+        function renderProduct(product) {
+            if (!product) {
+                document.getElementById('product-container').innerHTML = '<p>Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
+                return;
+            }
+            
+            let html = `
+                <div class="product-title">${product.name} - ${product.model}</div>
+                
+                <div class="product-images">
+                    ${product.images.map(img => `<img src="${img}" alt="${product.name}" class="product-image">`).join('')}
+                </div>
+                
+                <div class="product-features">
+                    <div class="feature-title">Özellikler</div>
+                    <ul class="feature-list">
+                        ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="product-specs">
+                    ${Object.entries(product.specs).map(([name, value]) => `
+                        <div class="spec-row">
+                            <div class="spec-name">${name}</div>
+                            <div class="spec-value">${value}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('product-container').innerHTML = html;
+        }
+    </script>
+</body>
+</html> 
