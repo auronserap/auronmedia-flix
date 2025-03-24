@@ -20,11 +20,44 @@
         }
         .preview-area {
             background-color: #fff;
-            border-radius: 6px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 30px;
             min-height: calc(100vh - 40px);
             overflow-y: auto;
+            transition: all 0.3s ease;
+            border: 2px dashed #e9ecef;
+        }
+        .preview-area:hover {
+            border-color: #3498db;
+        }
+        .preview-area.drag-over {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+            transform: scale(0.99);
+        }
+        .preview-area .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        .preview-area .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #adb5bd;
+        }
+        .preview-area .empty-state h4 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        .preview-area .empty-state p {
+            text-align: center;
+            max-width: 300px;
+            margin: 0 auto;
         }
         .component-item {
             padding: 10px;
@@ -158,9 +191,10 @@
             <!-- Önizleme Alanı -->
             <div class="col-md-6">
                 <div class="preview-area" id="previewArea">
-                    <div class="text-center text-muted py-5">
+                    <div class="empty-state">
+                        <i class="bi bi-box-arrow-in-down"></i>
                         <h4>İçerik Önizleme</h4>
-                        <p>Bileşenleri buraya sürükleyin</p>
+                        <p>Soldaki bileşenleri buraya sürükleyerek içeriğinizi oluşturmaya başlayın</p>
                     </div>
                 </div>
             </div>
@@ -311,16 +345,27 @@
             componentItems.forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', this.dataset.component);
+                    this.classList.add('dragging');
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
                 });
             });
             
             // Hedef alana bırakma işlemlerini ayarla
             previewArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
+                this.classList.add('drag-over');
+            });
+            
+            previewArea.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
             });
             
             previewArea.addEventListener('drop', function(e) {
                 e.preventDefault();
+                this.classList.remove('drag-over');
                 const componentType = e.dataTransfer.getData('text/plain');
                 addComponent(componentType);
             });
@@ -345,13 +390,13 @@
             const controlsDiv = document.createElement('div');
             controlsDiv.className = 'component-controls';
             controlsDiv.innerHTML = `
-                <button class="btn btn-sm btn-outline-primary control-btn" onclick="moveComponent(this, -1)">
+                <button class="btn btn-sm btn-outline-primary control-btn" onclick="moveComponent(this, -1)" title="Yukarı Taşı">
                     <i class="bi bi-arrow-up"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-primary control-btn" onclick="moveComponent(this, 1)">
+                <button class="btn btn-sm btn-outline-primary control-btn" onclick="moveComponent(this, 1)" title="Aşağı Taşı">
                     <i class="bi bi-arrow-down"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-danger control-btn" onclick="removeComponent(this)">
+                <button class="btn btn-sm btn-outline-danger control-btn" onclick="removeComponent(this)" title="Sil">
                     <i class="bi bi-trash"></i>
                 </button>
             `;
@@ -363,12 +408,22 @@
             const previewArea = document.getElementById('previewArea');
             
             // Eğer boş mesaj varsa kaldır
-            const emptyMessage = previewArea.querySelector('.text-center.text-muted.py-5');
-            if (emptyMessage) {
+            const emptyState = previewArea.querySelector('.empty-state');
+            if (emptyState) {
                 previewArea.innerHTML = '';
             }
             
+            // Animasyonlu ekleme
+            componentWrapper.style.opacity = '0';
+            componentWrapper.style.transform = 'translateY(20px)';
             previewArea.appendChild(componentWrapper);
+            
+            // Animasyonu başlat
+            setTimeout(() => {
+                componentWrapper.style.transition = 'all 0.3s ease';
+                componentWrapper.style.opacity = '1';
+                componentWrapper.style.transform = 'translateY(0)';
+            }, 10);
             
             // Bileşen tıklama olayını ekle
             componentWrapper.addEventListener('click', function(e) {
