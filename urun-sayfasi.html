@@ -29,15 +29,14 @@
             color: #2a2a2a;
         }
         .product-images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
             margin-bottom: 30px;
+            position: relative;
         }
         .product-image {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
+            display: block;
         }
         .product-features {
             margin-bottom: 30px;
@@ -88,6 +87,98 @@
         .spec-value {
             width: 70%;
         }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #f5c6cb;
+            background-color: #f8d7da;
+            border-radius: 5px;
+        }
+        
+        /* Slider Stilleri */
+        .slider-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .slider {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .slide {
+            min-width: 100%;
+            box-sizing: border-box;
+        }
+        .slide img {
+            width: 100%;
+            display: block;
+        }
+        .slider-nav {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        .slider-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        .slider-prev, .slider-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        .slider-prev {
+            left: 10px;
+        }
+        .slider-next {
+            right: 10px;
+        }
+        
+        /* Zoom Özelliği */
+        .zoom-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .zoom-image {
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+        .zoom-lens {
+            position: absolute;
+            border: 1px solid #ccc;
+            background-color: rgba(255, 255, 255, 0.4);
+            display: none;
+            cursor: zoom-in;
+        }
     </style>
 </head>
 <body>
@@ -102,88 +193,83 @@
             const productId = urlParams.get('id');
             
             if (!productId) {
-                document.getElementById('product-container').innerHTML = '<p>Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
+                document.getElementById('product-container').innerHTML = '<p class="error-message">Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
                 return;
             }
             
-            // Ürün verilerini al
-            const productData = getProductData(productId);
-            renderProduct(productData);
-            
-            // İframe yüksekliğini ayarla
-            setTimeout(function() {
-                const height = document.body.scrollHeight;
-                window.parent.postMessage({
-                    type: 'setHeight',
-                    height: height
-                }, '*');
-            }, 100);
+            // JSON dosyasından ürün verilerini getir
+            fetchProductData(productId);
         });
         
-        function getProductData(productId) {
-            // Bu fonksiyon normalde bir API'dan veri çekerdi
-            // Burada örnek veri kullanıyoruz
-            const products = {
-                '8681987831287': {
-                    name: 'Örnek Ürün 1',
-                    model: 'XYZ123',
-                    images: [
-                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+1',
-                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+2'
-                    ],
-                    features: [
-                        'Yüksek performanslı ve dayanıklı yapı',
-                        'Enerji tasarruflu çalışma sistemi',
-                        'Akıllı telefon ile uzaktan kontrol',
-                        'Kompakt tasarım, her alana uyum sağlar',
-                        '2 yıl garanti'
-                    ],
-                    specs: {
-                        'Marka': 'Sizin Markanız',
-                        'Model': 'XYZ123',
-                        'Boyutlar': '45 x 30 x 15 cm',
-                        'Ağırlık': '2.5 kg',
-                        'Renk': 'Siyah / Beyaz'
+        function fetchProductData(productId) {
+            // JSON dosyasından veri al
+            fetch('products.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ürün verileri yüklenirken bir hata oluştu.');
                     }
-                },
-                '8681987831288': {
-                    name: 'Örnek Ürün 2',
-                    model: 'ABC456',
-                    images: [
-                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+3',
-                        'https://via.placeholder.com/600x400.png?text=Urun+Gorseli+4'
-                    ],
-                    features: [
-                        'Ultra hafif tasarım',
-                        'Hızlı şarj teknolojisi',
-                        'Su geçirmez yapı',
-                        'Gelişmiş ses sistemi',
-                        '3 yıl garanti'
-                    ],
-                    specs: {
-                        'Marka': 'Sizin Markanız',
-                        'Model': 'ABC456',
-                        'Boyutlar': '20 x 10 x 5 cm',
-                        'Ağırlık': '0.8 kg',
-                        'Renk': 'Mavi / Gri'
+                    return response.json();
+                })
+                .then(data => {
+                    const product = data.products[productId];
+                    if (product) {
+                        renderProduct(product);
+                        
+                        // İframe yüksekliğini ayarla
+                        setTimeout(function() {
+                            const height = document.body.scrollHeight;
+                            window.parent.postMessage({
+                                type: 'setHeight',
+                                height: height
+                            }, '*');
+                        }, 100);
+                    } else {
+                        document.getElementById('product-container').innerHTML = '<p class="error-message">Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
                     }
-                }
-            };
-            
-            return products[productId] || null;
+                })
+                .catch(error => {
+                    console.error('Ürün verileri yüklenirken bir hata oluştu:', error);
+                    document.getElementById('product-container').innerHTML = `<p class="error-message">Ürün verileri yüklenirken bir hata oluştu: ${error.message}</p>`;
+                });
         }
         
         function renderProduct(product) {
             if (!product) {
-                document.getElementById('product-container').innerHTML = '<p>Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
+                document.getElementById('product-container').innerHTML = '<p class="error-message">Ürün bulunamadı. Lütfen geçerli bir ürün ID\'si belirtin.</p>';
                 return;
+            }
+            
+            // Slider HTML yapısını oluştur
+            let sliderHtml = '';
+            if (product.images && product.images.length > 0) {
+                sliderHtml = `
+                    <div class="slider-container">
+                        <div class="slider" id="product-slider">
+                            ${product.images.map(img => `
+                                <div class="slide">
+                                    <div class="zoom-container">
+                                        <img src="${img}" alt="${product.name}" class="zoom-image" data-full-img="${img}">
+                                        <div class="zoom-lens"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="slider-prev" onclick="moveSlider(-1)">❮</button>
+                        <button class="slider-next" onclick="moveSlider(1)">❯</button>
+                        <div class="slider-nav">
+                            ${product.images.map((_, index) => `
+                                <button class="slider-dot ${index === 0 ? 'active' : ''}" onclick="jumpToSlide(${index})"></button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
             }
             
             let html = `
                 <div class="product-title">${product.name} - ${product.model}</div>
                 
                 <div class="product-images">
-                    ${product.images.map(img => `<img src="${img}" alt="${product.name}" class="product-image">`).join('')}
+                    ${sliderHtml}
                 </div>
                 
                 <div class="product-features">
@@ -204,6 +290,81 @@
             `;
             
             document.getElementById('product-container').innerHTML = html;
+            
+            // Slider için değişkenleri tanımla
+            window.currentSlide = 0;
+            window.totalSlides = product.images.length;
+            
+            // Zoom özelliğini ekle
+            setupZoom();
+        }
+        
+        // Slider'ı hareket ettiren fonksiyon
+        function moveSlider(direction) {
+            window.currentSlide = (window.currentSlide + direction + window.totalSlides) % window.totalSlides;
+            updateSlider();
+        }
+        
+        // Belirli bir slide'a atlayan fonksiyon
+        function jumpToSlide(index) {
+            window.currentSlide = index;
+            updateSlider();
+        }
+        
+        // Slider'ı güncelleyen fonksiyon
+        function updateSlider() {
+            const slider = document.getElementById('product-slider');
+            if (!slider) return;
+            
+            // Slider'ı kaydır
+            slider.style.transform = `translateX(-${window.currentSlide * 100}%)`;
+            
+            // Aktif noktayı güncelle
+            const dots = document.querySelectorAll('.slider-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === window.currentSlide);
+            });
+        }
+        
+        // Zoom özelliği için ayarlar
+        function setupZoom() {
+            const zoomImages = document.querySelectorAll('.zoom-image');
+            const zoomLenses = document.querySelectorAll('.zoom-lens');
+            
+            zoomImages.forEach((img, index) => {
+                const lens = zoomLenses[index];
+                
+                img.addEventListener('mousemove', function(e) {
+                    let rect = this.getBoundingClientRect();
+                    let x = e.clientX - rect.left;
+                    let y = e.clientY - rect.top;
+                    
+                    // Lens boyutu
+                    let lensSize = 100;
+                    lens.style.width = lensSize + 'px';
+                    lens.style.height = lensSize + 'px';
+                    
+                    // Lens pozisyonu
+                    lens.style.left = Math.max(0, Math.min(x - lensSize / 2, rect.width - lensSize)) + 'px';
+                    lens.style.top = Math.max(0, Math.min(y - lensSize / 2, rect.height - lensSize)) + 'px';
+                    
+                    // Lens'i göster
+                    lens.style.display = 'block';
+                    
+                    // Zoom efekti
+                    let zoomFactor = 1.5;
+                    let lensX = parseInt(lens.style.left) / img.width;
+                    let lensY = parseInt(lens.style.top) / img.height;
+                    
+                    img.style.transformOrigin = `${lensX * 100}% ${lensY * 100}%`;
+                    img.style.transform = `scale(${zoomFactor})`;
+                });
+                
+                img.addEventListener('mouseleave', function() {
+                    lens.style.display = 'none';
+                    img.style.transform = 'scale(1)';
+                });
+            });
         }
     </script>
 </body>

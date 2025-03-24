@@ -1,0 +1,70 @@
+{
+  "products": {
+    "8681987831287": {
+      "name": "Örnek Ürün 1",
+      "model": "XYZ123",
+      "images": [
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+1",
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+2"
+      ],
+      "features": [
+        "Yüksek performanslı ve dayanıklı yapı",
+        "Enerji tasarruflu çalışma sistemi",
+        "Akıllı telefon ile uzaktan kontrol",
+        "Kompakt tasarım, her alana uyum sağlar",
+        "2 yıl garanti"
+      ],
+      "specs": {
+        "Marka": "Sizin Markanız",
+        "Model": "XYZ123",
+        "Boyutlar": "45 x 30 x 15 cm",
+        "Ağırlık": "2.5 kg",
+        "Renk": "Siyah / Beyaz"
+      }
+    },
+    "8681987831288": {
+      "name": "Örnek Ürün 2",
+      "model": "ABC456",
+      "images": [
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+3",
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+4"
+      ],
+      "features": [
+        "Ultra hafif tasarım",
+        "Hızlı şarj teknolojisi",
+        "Su geçirmez yapı",
+        "Gelişmiş ses sistemi",
+        "3 yıl garanti"
+      ],
+      "specs": {
+        "Marka": "Sizin Markanız",
+        "Model": "ABC456",
+        "Boyutlar": "20 x 10 x 5 cm",
+        "Ağırlık": "0.8 kg",
+        "Renk": "Mavi / Gri"
+      }
+    },
+    "8681987831289": {
+      "name": "Örnek Ürün 3",
+      "model": "DEF789",
+      "images": [
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+5",
+        "https://via.placeholder.com/600x400.png?text=Urun+Gorseli+6"
+      ],
+      "features": [
+        "Full HD ekran",
+        "Uzun pil ömrü",
+        "Şok emici kasa",
+        "Yapay zeka destekli işlemci",
+        "5 yıl garanti"
+      ],
+      "specs": {
+        "Marka": "Sizin Markanız",
+        "Model": "DEF789",
+        "Boyutlar": "35 x 25 x 8 cm",
+        "Ağırlık": "1.2 kg",
+        "Renk": "Kırmızı / Siyah"
+      }
+    }
+  }
+} 

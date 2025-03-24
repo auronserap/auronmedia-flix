@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuronMedia - Yönetim Paneli</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .product-list {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .product-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .product-id {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .product-name {
+            font-weight: bold;
+            flex-grow: 1;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: auto;
+        }
+        .modal-content {
+            background-color: white;
+            margin: 40px auto;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            margin: 0;
+            font-size: 20px;
+        }
+        .close {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        .dynamic-list {
+            margin-bottom: 10px;
+        }
+        .dynamic-list-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .dynamic-list-item input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .modal-footer {
+            padding: 15px 20px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+            text-align: right;
+        }
+        .add-product-btn {
+            margin-bottom: 20px;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+        .notification-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .notification-error {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AuronMedia - Ürün Yönetimi</h1>
+        </header>
+        
+        <button class="btn btn-success add-product-btn" onclick="openAddProductModal()">Yeni Ürün Ekle</button>
+        
+        <div class="product-list" id="productList">
+            <!-- Ürünler JavaScript ile burada listelenecek -->
+            <div class="product-item">
+                <span class="product-id">Yükleniyor...</span>
+                <span class="product-name">Ürünler yükleniyor...</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ürün Düzenleme Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Ürün Düzenle</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    
+                    <div class="form-group">
+                        <label for="productName">Ürün Adı</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productModel">Model</label>
+                        <input type="text" id="productModel" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ürün Görselleri</label>
+                        <div id="productImages" class="dynamic-list">
+                            <!-- Resim alanları JavaScript ile burada oluşturulacak -->
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addImageField()">Görsel Ekle</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Özellikler</label>
+                        <div id="productFeatures" class="dynamic-list">
+                            <!-- Özellik alanları JavaScript ile burada oluşturulacak -->
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addFeatureField()">Özellik Ekle</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Teknik Özellikler</label>
+                        <div id="productSpecs" class="dynamic-list">
+                            <!-- Teknik özellik alanları JavaScript ile burada oluşturulacak -->
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="addSpecField()">Teknik Özellik Ekle</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="closeModal()">İptal</button>
+                <button type="button" class="btn btn-success" onclick="saveProduct()">Kaydet</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bildirim -->
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        let productsData = { products: {} };
+        
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+        });
+        
+        // Ürünleri yükle
+        function loadProducts() {
+            fetch('products.json')
+                .then(response => response.json())
+                .then(data => {
+                    productsData = data;
+                    renderProductList();
+                })
+                .catch(error => {
+                    console.error('Ürünler yüklenirken hata oluştu:', error);
+                    showNotification('Ürünler yüklenirken hata oluştu: ' + error.message, 'error');
+                });
+        }
+        
+        // Ürün listesini oluştur
+        function renderProductList() {
+            const productListElement = document.getElementById('productList');
+            const products = productsData.products;
+            
+            if (Object.keys(products).length === 0) {
+                productListElement.innerHTML = '<div class="product-item">Henüz ürün bulunmamaktadır.</div>';
+                return;
+            }
+            
+            let html = '';
+            for (const id in products) {
+                const product = products[id];
+                html += `
+                    <div class="product-item">
+                        <span class="product-id">${id}</span>
+                        <span class="product-name">${product.name}</span>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="editProduct('${id}')">Düzenle</button>
+                            <button class="btn btn-danger" onclick="deleteProduct('${id}')">Sil</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            productListElement.innerHTML = html;
+        }
+        
+        // Modal'ı aç (düzenleme için)
+        function editProduct(id) {
+            const product = productsData.products[id];
+            if (!product) return;
+            
+            document.getElementById('modalTitle').textContent = 'Ürün Düzenle';
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productModel').value = product.model;
+            
+            // Görselleri doldur
+            const imagesContainer = document.getElementById('productImages');
+            imagesContainer.innerHTML = '';
+            product.images.forEach(image => {
+                addImageField(image);
+            });
+            
+            // Özellikleri doldur
+            const featuresContainer = document.getElementById('productFeatures');
+            featuresContainer.innerHTML = '';
+            product.features.forEach(feature => {
+                addFeatureField(feature);
+            });
+            
+            // Teknik özellikleri doldur
+            const specsContainer = document.getElementById('productSpecs');
+            specsContainer.innerHTML = '';
+            for (const name in product.specs) {
+                addSpecField(name, product.specs[name]);
+            }
+            
+            document.getElementById('productModal').style.display = 'block';
+        }
+        
+        // Yeni ürün ekleme modalını aç
+        function openAddProductModal() {
+            document.getElementById('modalTitle').textContent = 'Yeni Ürün Ekle';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = generateProductId();
+            
+            // Alanları temizle
+            document.getElementById('productImages').innerHTML = '';
+            document.getElementById('productFeatures').innerHTML = '';
+            document.getElementById('productSpecs').innerHTML = '';
+            
+            // Başlangıç alanları ekle
+            addImageField();
+            addFeatureField();
+            addSpecField();
+            
+            document.getElementById('productModal').style.display = 'block';
+        }
+        
+        // Modal'ı kapat
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+        
+        // Yeni bir görsel alanı ekle
+        function addImageField(value = '') {
+            const container = document.getElementById('productImages');
+            const item = document.createElement('div');
+            item.className = 'dynamic-list-item';
+            item.innerHTML = `
+                <input type="text" name="image" value="${value}" placeholder="Görsel URL'si" required>
+                <button type="button" class="btn btn-danger" onclick="removeField(this)">Sil</button>
+            `;
+            container.appendChild(item);
+        }
+        
+        // Yeni bir özellik alanı ekle
+        function addFeatureField(value = '') {
+            const container = document.getElementById('productFeatures');
+            const item = document.createElement('div');
+            item.className = 'dynamic-list-item';
+            item.innerHTML = `
+                <input type="text" name="feature" value="${value}" placeholder="Ürün özelliği" required>
+                <button type="button" class="btn btn-danger" onclick="removeField(this)">Sil</button>
+            `;
+            container.appendChild(item);
+        }
+        
+        // Yeni bir teknik özellik alanı ekle
+        function addSpecField(name = '', value = '') {
+            const container = document.getElementById('productSpecs');
+            const item = document.createElement('div');
+            item.className = 'dynamic-list-item';
+            item.innerHTML = `
+                <input type="text" name="specName" value="${name}" placeholder="Özellik adı" required style="width: 30%; margin-right: 10px;">
+                <input type="text" name="specValue" value="${value}" placeholder="Değer" required>
+                <button type="button" class="btn btn-danger" onclick="removeField(this)">Sil</button>
+            `;
+            container.appendChild(item);
+        }
+        
+        // Bir alanı kaldır
+        function removeField(button) {
+            const item = button.parentElement;
+            item.parentElement.removeChild(item);
+        }
+        
+        // Ürünü kaydet
+        function saveProduct() {
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const model = document.getElementById('productModel').value;
+            
+            // Form validasyonu
+            if (!name || !model) {
+                showNotification('Lütfen tüm zorunlu alanları doldurun.', 'error');
+                return;
+            }
+            
+            // Görselleri topla
+            const imageInputs = document.querySelectorAll('#productImages input[name="image"]');
+            const images = Array.from(imageInputs).map(input => input.value).filter(value => value.trim() !== '');
+            
+            // Özellikleri topla
+            const featureInputs = document.querySelectorAll('#productFeatures input[name="feature"]');
+            const features = Array.from(featureInputs).map(input => input.value).filter(value => value.trim() !== '');
+            
+            // Teknik özellikleri topla
+            const specs = {};
+            const specRows = document.querySelectorAll('#productSpecs .dynamic-list-item');
+            specRows.forEach(row => {
+                const nameInput = row.querySelector('input[name="specName"]');
+                const valueInput = row.querySelector('input[name="specValue"]');
+                if (nameInput.value.trim() !== '' && valueInput.value.trim() !== '') {
+                    specs[nameInput.value] = valueInput.value;
+                }
+            });
+            
+            // Ürün nesnesini oluştur
+            const product = {
+                name,
+                model,
+                images,
+                features,
+                specs
+            };
+            
+            // Ürünü kaydet
+            productsData.products[id] = product;
+            
+            // JSON dosyasına kaydet (gerçekte bu işlem sunucu tarafında yapılır)
+            // Bu demo için, değişikliği tarayıcı belleğinde tutacağız
+            // Not: Gerçek bir uygulamada bu kısmı backend API ile yapmalısınız
+            
+            // UI'ı güncelle
+            renderProductList();
+            closeModal();
+            showNotification('Ürün başarıyla kaydedildi!', 'success');
+            
+            // LocalStorage'a geçici olarak kaydet (demo amaçlı)
+            localStorage.setItem('productsData', JSON.stringify(productsData));
+        }
+        
+        // Ürünü sil
+        function deleteProduct(id) {
+            if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
+                delete productsData.products[id];
+                renderProductList();
+                showNotification('Ürün başarıyla silindi!', 'success');
+                
+                // LocalStorage'a geçici olarak kaydet (demo amaçlı)
+                localStorage.setItem('productsData', JSON.stringify(productsData));
+            }
+        }
+        
+        // Yeni ürün ID'si oluştur
+        function generateProductId() {
+            // Örnek EAN formatında ID oluştur (Gerçek bir uygulamada doğru bir şekilde yapılmalı)
+            const prefix = '8681987';
+            const randomPart = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            return prefix + randomPart;
+        }
+        
+        // Bildirim göster
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification notification-' + type;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Sayfa yüklendiğinde localStorage'dan verileri kontrol et (demo amaçlı)
+        const savedData = localStorage.getItem('productsData');
+        if (savedData) {
+            try {
+                productsData = JSON.parse(savedData);
+            } catch (e) {
+                console.error('Kaydedilmiş veri okunamadı:', e);
+            }
+        }
+    </script>
+</body>
+</html> 
