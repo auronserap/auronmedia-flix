@@ -90,6 +90,41 @@
             margin-top: 0;
             color: #2980b9;
         }
+        .tool-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .tool-link {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            color: white;
+            transition: transform 0.3s;
+        }
+        .tool-link:hover {
+            transform: translateY(-3px);
+        }
+        .admin-tool {
+            background-color: #2c3e50;
+        }
+        .builder-tool {
+            background-color: #16a085;
+        }
+        .new-tag {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -103,7 +138,15 @@
             <ul>
                 <li><strong>JSON Veri Yapısı:</strong> Tüm ürün verileri artık ayrı bir JSON dosyasında tutuluyor</li>
                 <li><strong>Yönetim Paneli:</strong> Ürünlerinizi görsel bir arayüzle düzenleyebilirsiniz</li>
+                <li><strong>Görsel İyileştirmeler:</strong> Slider ve zoom özellikleri eklendi</li>
+                <li><strong>İçerik Oluşturucu:</strong> <span class="new-tag">Yeni</span> Sürükle-bırak yöntemiyle modern içerik oluşturma aracı</li>
             </ul>
+        </div>
+        
+        <h2>Araçlar</h2>
+        <div class="tool-buttons">
+            <a href="admin.html" class="tool-link admin-tool">Yönetim Paneli</a>
+            <a href="builder.html" class="tool-link builder-tool">İçerik Oluşturucu <span class="new-tag">Yeni</span></a>
         </div>
         
         <h2>Demolar</h2>
@@ -114,10 +157,6 @@
             <li><a href="urun-sayfasi.html?id=8681987831289" class="demo-link">Ürün 3 (Dinamik - Yeni)</a></li>
             <li><a href="urun-8681987831287.html" class="demo-link">Statik Ürün Sayfası</a></li>
         </ul>
-        
-        <h2>Yönetim</h2>
-        <p>Ürünlerinizi yönetmek için yönetim panelini kullanabilirsiniz.</p>
-        <a href="admin.html" class="admin-link">Yönetim Paneline Git</a>
         
         <h2>Kullanım</h2>
         <p>Pazaryeri ürün açıklamalarınıza şu kodu ekleyin:</p>
@@ -136,6 +175,8 @@
             <li>Zengin içerik desteği: resimler, tablolar, listeler</li>
             <li>JSON veri yapısı - kolay yönetim</li>
             <li>Görsel yönetim paneli</li>
+            <li>Görsel slider ve zoom özellikleri</li>
+            <li>Sürükle-bırak bileşen bazlı içerik oluşturucu</li>
         </ul>
         
         <h2>Daha Fazla Bilgi</h2>
