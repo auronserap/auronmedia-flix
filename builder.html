@@ -147,6 +147,46 @@
             padding-bottom: 5px;
             border-bottom: 1px solid #dee2e6;
         }
+        .preview-area .drop-indicator {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #3498db;
+            transition: transform 0.2s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .preview-area .drop-indicator::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: #3498db;
+            border-radius: 50%;
+        }
+        .preview-area .drop-indicator::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: #3498db;
+            border-radius: 50%;
+        }
+        .preview-area .component-preview {
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .preview-area .component-preview.shift-up {
+            transform: translateY(-10px);
+        }
+        .preview-area .component-preview.shift-down {
+            transform: translateY(10px);
+        }
     </style>
 </head>
 <body>
@@ -373,20 +413,33 @@
         function setupDragAndDrop() {
             const componentItems = document.querySelectorAll('.component-item');
             const previewArea = document.getElementById('previewArea');
-            let dropPreview = null;
+            let dropIndicator = null;
+            let lastShiftedComponent = null;
             
             // Sürüklenebilir bileşenleri ayarla
             componentItems.forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', this.dataset.component);
                     this.classList.add('dragging');
+                    
+                    // Sürükleme göstergesi oluştur
+                    if (!dropIndicator) {
+                        dropIndicator = document.createElement('div');
+                        dropIndicator.className = 'drop-indicator';
+                        document.body.appendChild(dropIndicator);
+                    }
                 });
                 
                 item.addEventListener('dragend', function(e) {
                     this.classList.remove('dragging');
-                    if (dropPreview) {
-                        dropPreview.remove();
-                        dropPreview = null;
+                    if (dropIndicator) {
+                        dropIndicator.remove();
+                        dropIndicator = null;
+                    }
+                    // Kaydırılmış bileşenleri sıfırla
+                    if (lastShiftedComponent) {
+                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
+                        lastShiftedComponent = null;
                     }
                 });
             });
@@ -396,65 +449,74 @@
                 e.preventDefault();
                 this.classList.add('drag-over');
                 
-                // Fare pozisyonunu al
                 const mouseY = e.clientY;
                 const components = Array.from(this.children).filter(child => 
-                    child.classList.contains('component-preview') || child.classList.contains('empty-state')
+                    child.classList.contains('component-preview')
                 );
                 
-                // Önizleme elemanını oluştur veya güncelle
-                if (!dropPreview) {
-                    dropPreview = document.createElement('div');
-                    dropPreview.className = 'drop-preview';
-                    dropPreview.style.height = '50px';
-                }
-                
                 // Boş alan kontrolü
-                if (components.length === 0 || components[0].classList.contains('empty-state')) {
-                    if (dropPreview.parentNode !== this) {
-                        this.innerHTML = '';
-                        this.appendChild(dropPreview);
-                    }
+                if (components.length === 0) {
+                    dropIndicator.style.display = 'block';
+                    const rect = this.getBoundingClientRect();
+                    dropIndicator.style.top = `${rect.top + rect.height / 2}px`;
+                    dropIndicator.style.left = `${rect.left}px`;
+                    dropIndicator.style.width = `${rect.width}px`;
                     return;
                 }
                 
-                // En yakın bileşeni bul
-                let closestComponent = null;
-                let closestDistance = Infinity;
-                let insertBefore = false;
+                // En yakın bileşeni ve konumu bul
+                let targetComponent = null;
+                let insertBefore = true;
+                let minDistance = Infinity;
                 
                 components.forEach(component => {
                     const rect = component.getBoundingClientRect();
                     const centerY = rect.top + rect.height / 2;
                     const distance = Math.abs(mouseY - centerY);
                     
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        closestComponent = component;
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        targetComponent = component;
                         insertBefore = mouseY < centerY;
                     }
                 });
                 
-                // Önizlemeyi yerleştir
-                if (closestComponent) {
-                    if (insertBefore) {
-                        if (closestComponent.previousSibling !== dropPreview) {
-                            closestComponent.parentNode.insertBefore(dropPreview, closestComponent);
-                        }
-                    } else {
-                        if (closestComponent.nextSibling !== dropPreview) {
-                            closestComponent.parentNode.insertBefore(dropPreview, closestComponent.nextSibling);
-                        }
+                if (targetComponent) {
+                    const rect = targetComponent.getBoundingClientRect();
+                    const indicatorY = insertBefore ? rect.top : rect.bottom;
+                    
+                    // Göstergeyi güncelle
+                    dropIndicator.style.display = 'block';
+                    dropIndicator.style.top = `${indicatorY}px`;
+                    dropIndicator.style.left = `${rect.left}px`;
+                    dropIndicator.style.width = `${rect.width}px`;
+                    
+                    // Kaydırma efektini uygula
+                    if (lastShiftedComponent && lastShiftedComponent !== targetComponent) {
+                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
                     }
+                    
+                    if (insertBefore) {
+                        targetComponent.classList.add('shift-down');
+                        targetComponent.classList.remove('shift-up');
+                    } else {
+                        targetComponent.classList.add('shift-up');
+                        targetComponent.classList.remove('shift-down');
+                    }
+                    
+                    lastShiftedComponent = targetComponent;
                 }
             });
             
             previewArea.addEventListener('dragleave', function(e) {
                 if (!e.relatedTarget || !this.contains(e.relatedTarget)) {
                     this.classList.remove('drag-over');
-                    if (dropPreview) {
-                        dropPreview.remove();
-                        dropPreview = null;
+                    if (dropIndicator) {
+                        dropIndicator.style.display = 'none';
+                    }
+                    if (lastShiftedComponent) {
+                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
+                        lastShiftedComponent = null;
                     }
                 }
             });
@@ -464,12 +526,34 @@
                 this.classList.remove('drag-over');
                 const componentType = e.dataTransfer.getData('text/plain');
                 
-                // Önizleme elemanının konumuna yeni bileşeni ekle
-                if (dropPreview) {
-                    const insertPosition = dropPreview;
-                    dropPreview.remove();
-                    dropPreview = null;
-                    addComponent(componentType, insertPosition);
+                // Gösterge konumuna göre bileşeni ekle
+                if (dropIndicator) {
+                    const mouseY = e.clientY;
+                    const components = Array.from(this.children).filter(child => 
+                        child.classList.contains('component-preview')
+                    );
+                    
+                    let insertBefore = null;
+                    
+                    if (components.length > 0) {
+                        for (let i = 0; i < components.length; i++) {
+                            const rect = components[i].getBoundingClientRect();
+                            if (mouseY < rect.bottom) {
+                                insertBefore = components[i];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    addComponent(componentType, insertBefore);
+                    dropIndicator.remove();
+                    dropIndicator = null;
+                    
+                    // Kaydırılmış bileşenleri sıfırla
+                    if (lastShiftedComponent) {
+                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
+                        lastShiftedComponent = null;
+                    }
                 } else {
                     addComponent(componentType);
                 }
