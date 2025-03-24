@@ -71,6 +71,39 @@
             background-color: #e9ecef;
             transform: translateY(-2px);
         }
+        .component-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        .preview-area .drop-preview {
+            border: 2px dashed #3498db;
+            border-radius: 6px;
+            margin: 10px 0;
+            padding: 15px;
+            background-color: rgba(52, 152, 219, 0.1);
+            position: relative;
+            animation: pulse 1.5s infinite;
+        }
+        .preview-area .drop-preview::before {
+            content: '⬇️';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #3498db;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+            }
+        }
         .component-preview {
             border: 1px solid #dee2e6;
             border-radius: 6px;
@@ -340,6 +373,7 @@
         function setupDragAndDrop() {
             const componentItems = document.querySelectorAll('.component-item');
             const previewArea = document.getElementById('previewArea');
+            let dropPreview = null;
             
             // Sürüklenebilir bileşenleri ayarla
             componentItems.forEach(item => {
@@ -350,6 +384,10 @@
                 
                 item.addEventListener('dragend', function(e) {
                     this.classList.remove('dragging');
+                    if (dropPreview) {
+                        dropPreview.remove();
+                        dropPreview = null;
+                    }
                 });
             });
             
@@ -357,22 +395,89 @@
             previewArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 this.classList.add('drag-over');
+                
+                // Fare pozisyonunu al
+                const mouseY = e.clientY;
+                const components = Array.from(this.children).filter(child => 
+                    child.classList.contains('component-preview') || child.classList.contains('empty-state')
+                );
+                
+                // Önizleme elemanını oluştur veya güncelle
+                if (!dropPreview) {
+                    dropPreview = document.createElement('div');
+                    dropPreview.className = 'drop-preview';
+                    dropPreview.style.height = '50px';
+                }
+                
+                // Boş alan kontrolü
+                if (components.length === 0 || components[0].classList.contains('empty-state')) {
+                    if (dropPreview.parentNode !== this) {
+                        this.innerHTML = '';
+                        this.appendChild(dropPreview);
+                    }
+                    return;
+                }
+                
+                // En yakın bileşeni bul
+                let closestComponent = null;
+                let closestDistance = Infinity;
+                let insertBefore = false;
+                
+                components.forEach(component => {
+                    const rect = component.getBoundingClientRect();
+                    const centerY = rect.top + rect.height / 2;
+                    const distance = Math.abs(mouseY - centerY);
+                    
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestComponent = component;
+                        insertBefore = mouseY < centerY;
+                    }
+                });
+                
+                // Önizlemeyi yerleştir
+                if (closestComponent) {
+                    if (insertBefore) {
+                        if (closestComponent.previousSibling !== dropPreview) {
+                            closestComponent.parentNode.insertBefore(dropPreview, closestComponent);
+                        }
+                    } else {
+                        if (closestComponent.nextSibling !== dropPreview) {
+                            closestComponent.parentNode.insertBefore(dropPreview, closestComponent.nextSibling);
+                        }
+                    }
+                }
             });
             
             previewArea.addEventListener('dragleave', function(e) {
-                this.classList.remove('drag-over');
+                if (!e.relatedTarget || !this.contains(e.relatedTarget)) {
+                    this.classList.remove('drag-over');
+                    if (dropPreview) {
+                        dropPreview.remove();
+                        dropPreview = null;
+                    }
+                }
             });
             
             previewArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('drag-over');
                 const componentType = e.dataTransfer.getData('text/plain');
-                addComponent(componentType);
+                
+                // Önizleme elemanının konumuna yeni bileşeni ekle
+                if (dropPreview) {
+                    const insertPosition = dropPreview;
+                    dropPreview.remove();
+                    dropPreview = null;
+                    addComponent(componentType, insertPosition);
+                } else {
+                    addComponent(componentType);
+                }
             });
         }
         
         // Yeni bir bileşen ekle
-        function addComponent(componentType) {
+        function addComponent(componentType, insertBefore = null) {
             const templateId = `${componentType}-template`;
             const template = document.getElementById(templateId);
             
@@ -416,7 +521,12 @@
             // Animasyonlu ekleme
             componentWrapper.style.opacity = '0';
             componentWrapper.style.transform = 'translateY(20px)';
-            previewArea.appendChild(componentWrapper);
+            
+            if (insertBefore) {
+                previewArea.insertBefore(componentWrapper, insertBefore);
+            } else {
+                previewArea.appendChild(componentWrapper);
+            }
             
             // Animasyonu başlat
             setTimeout(() => {
