@@ -5,211 +5,328 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AuronMedia - İçerik Oluşturucu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --primary-color: #0066FF;
+            --secondary-color: #00CC99;
+            --accent-color: #FF3366;
+            --dark-color: #1A1A2E;
+            --light-color: #F7F9FC;
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
         body {
-            padding-top: 20px;
-            background-color: #f8f9fa;
+            background-color: var(--light-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
         }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .app-header h1 {
+            color: white;
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            margin: 0.5rem 0 0;
+        }
+
         .components-panel {
-            background-color: #fff;
-            border-radius: 6px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            height: calc(100vh - 40px);
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
+            height: calc(100vh - 120px);
             overflow-y: auto;
+            position: sticky;
+            top: 20px;
         }
+
+        .component-group {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            transition: var(--transition-speed);
+        }
+
+        .component-group:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .component-group-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(0,102,255,0.1);
+        }
+
+        .component-item {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: calc(var(--border-radius) - 4px);
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition-speed);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .component-item i {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            transition: var(--transition-speed);
+        }
+
+        .component-item:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .component-item:hover i {
+            color: white;
+        }
+
         .preview-area {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            padding: 30px;
-            min-height: calc(100vh - 40px);
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            border: 2px dashed #e9ecef;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 2rem;
+            min-height: calc(100vh - 120px);
+            border: 2px dashed rgba(0,102,255,0.2);
+            transition: var(--transition-speed);
         }
+
         .preview-area:hover {
-            border-color: #3498db;
+            border-color: var(--primary-color);
         }
+
         .preview-area.drag-over {
-            background-color: #f8f9fa;
-            border-color: #3498db;
+            background: rgba(0,102,255,0.02);
+            border-color: var(--primary-color);
             transform: scale(0.99);
         }
+
         .preview-area .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 300px;
-            color: #6c757d;
-            transition: all 0.3s ease;
+            min-height: 400px;
+            padding: 3rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            transition: var(--transition-speed);
         }
+
         .preview-area .empty-state i {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #adb5bd;
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
         }
+
         .preview-area .empty-state h4 {
-            margin-bottom: 10px;
-            color: #495057;
+            color: var(--dark-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
+
         .preview-area .empty-state p {
+            color: #64748b;
             text-align: center;
-            max-width: 300px;
-            margin: 0 auto;
+            max-width: 400px;
+            line-height: 1.6;
         }
-        .component-item {
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
+
+        .settings-panel {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 1.5rem;
         }
-        .component-item:hover {
-            background-color: #e9ecef;
+
+        .settings-panel h5 {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+
+        .code-output {
+            background: var(--dark-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            height: 300px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            border-radius: calc(var(--border-radius) - 4px);
+            transition: var(--transition-speed);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .component-preview {
+            background: white;
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition-speed);
+            position: relative;
+        }
+
+        .component-preview:hover {
+            box-shadow: var(--shadow-md);
             transform: translateY(-2px);
         }
-        .component-item.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
-        }
-        .preview-area .drop-preview {
-            border: 2px dashed #3498db;
-            border-radius: 6px;
-            margin: 10px 0;
-            padding: 15px;
-            background-color: rgba(52, 152, 219, 0.1);
-            position: relative;
-            animation: pulse 1.5s infinite;
-        }
-        .preview-area .drop-preview::before {
-            content: '⬇️';
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            color: #3498db;
-        }
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
-            }
-        }
-        .component-preview {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 15px;
-            position: relative;
-        }
+
         .component-controls {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            display: none;
-        }
-        .component-preview:hover .component-controls {
+            top: 0.75rem;
+            right: 0.75rem;
             display: flex;
+            gap: 0.375rem;
+            opacity: 0;
+            transition: var(--transition-speed);
         }
+
+        .component-preview:hover .component-controls {
+            opacity: 1;
+        }
+
         .control-btn {
-            width: 30px;
-            height: 30px;
-            margin-left: 5px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: calc(var(--border-radius) - 4px);
+            transition: var(--transition-speed);
+            background: white;
+            border: 1px solid rgba(0,0,0,0.08);
         }
-        .code-output {
-            background-color: #212529;
-            color: #fff;
-            border-radius: 6px;
-            padding: 15px;
-            font-family: monospace;
-            height: 200px;
-            overflow-y: auto;
+
+        .control-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
         }
-        .component-group {
-            margin-bottom: 20px;
+
+        [data-theme="dark"] {
+            --light-color: #1a1a2e;
+            --dark-color: #ffffff;
+            background-color: #1a1a2e;
+            color: #ffffff;
         }
-        .component-group-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #dee2e6;
+
+        [data-theme="dark"] .components-panel,
+        [data-theme="dark"] .preview-area,
+        [data-theme="dark"] .settings-panel {
+            background: #242442;
+            border-color: rgba(255,255,255,0.1);
         }
-        .preview-area .drop-indicator {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: #3498db;
-            transition: transform 0.2s ease;
-            pointer-events: none;
-            z-index: 1000;
+
+        [data-theme="dark"] .component-group {
+            background: rgba(255,255,255,0.05);
         }
-        .preview-area .drop-indicator::before {
-            content: '';
-            position: absolute;
-            left: -6px;
-            top: -4px;
-            width: 10px;
-            height: 10px;
-            background-color: #3498db;
-            border-radius: 50%;
+
+        [data-theme="dark"] .component-item {
+            background: #242442;
+            border-color: rgba(255,255,255,0.1);
+            color: #ffffff;
         }
-        .preview-area .drop-indicator::after {
-            content: '';
-            position: absolute;
-            right: -6px;
-            top: -4px;
-            width: 10px;
-            height: 10px;
-            background-color: #3498db;
-            border-radius: 50%;
+
+        [data-theme="dark"] .empty-state {
+            background: rgba(255,255,255,0.05);
         }
-        .preview-area .component-preview {
-            position: relative;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            cursor: move;
-            user-select: none;
+
+        [data-theme="dark"] .component-preview {
+            background: #242442;
+            border-color: rgba(255,255,255,0.1);
         }
-        .preview-area .component-preview:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .preview-area .component-preview.dragging {
-            opacity: 0.9;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            transform: scale(1.02);
-            z-index: 1000;
-        }
-        .preview-area .component-preview.drag-target {
-            border: 2px dashed #3498db;
-            background-color: rgba(52, 152, 219, 0.05);
-        }
-        .preview-area .component-preview.shift-up {
-            transform: translateY(-10px);
-        }
-        .preview-area .component-preview.shift-down {
-            transform: translateY(10px);
+
+        [data-theme="dark"] .control-btn {
+            background: #242442;
+            border-color: rgba(255,255,255,0.1);
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="text-center">AuronMedia İçerik Oluşturucu</h1>
-                <p class="text-center text-muted">Sürükle bırak ile ürün içeriği oluşturun</p>
+    <div class="container-fluid px-4">
+        <div class="app-header mb-4">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-brush-fill me-3" style="font-size: 2.5rem; color: white;"></i>
+                            <div>
+                                <h1>AuronMedia İçerik Oluşturucu</h1>
+                                <p>Sürükle bırak ile profesyonel içerik oluşturun</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col text-end">
+                        <button class="btn btn-light" onclick="toggleTheme()">
+                            <i class="bi bi-moon me-2"></i>
+                            Tema Değiştir
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -410,17 +527,56 @@
                 </div>
             </div>
         </template>
+
+        <!-- Banner Component -->
+        <template id="banner-template">
+            <div class="alert alert-primary mb-4 p-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h4 class="alert-heading component-content mb-2" contenteditable="true">Önemli Duyuru!</h4>
+                        <p class="component-content mb-0" contenteditable="true">Buraya önemli bir mesaj veya duyuru yazabilirsiniz.</p>
+                    </div>
+                    <div class="ms-3">
+                        <button type="button" class="btn btn-primary component-content" contenteditable="true">Detaylar</button>
+                    </div>
+                </div>
+            </div>
+        </template>
     </div>
-    
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
+    <div class="theme-switch" onclick="toggleTheme()">
+        <i class="bi bi-moon"></i>
+    </div>
+
     <script>
-        // Sayfa yüklendiğinde
+        // Tema değiştirme fonksiyonu
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-switch i');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('bi-moon');
+                themeIcon.classList.add('bi-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Sayfa yüklendiğinde tema kontrolü
         document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.querySelector('.theme-switch i').classList.replace('bi-moon', 'bi-sun');
+            }
             setupDragAndDrop();
         });
         
@@ -429,105 +585,19 @@
             const componentItems = document.querySelectorAll('.component-item');
             const previewArea = document.getElementById('previewArea');
             let dropIndicator = null;
-            let lastShiftedComponent = null;
             let draggedComponent = null;
-            
-            // Var olan bileşenleri de sürüklenebilir yap
-            function makeComponentsDraggable() {
-                const components = document.querySelectorAll('.component-preview');
-                components.forEach(component => {
-                    if (!component.hasAttribute('draggable')) {
-                        component.setAttribute('draggable', 'true');
-                        setupComponentDragEvents(component);
-                    }
-                });
-            }
-            
-            // Bileşen sürükleme olaylarını ayarla
-            function setupComponentDragEvents(component) {
-                component.addEventListener('dragstart', function(e) {
-                    draggedComponent = this;
-                    this.classList.add('dragging');
-                    e.dataTransfer.setData('text/plain', 'moving-component');
-                    e.dataTransfer.effectAllowed = 'move';
-                    
-                    // Sürükleme göstergesi oluştur
-                    if (!dropIndicator) {
-                        dropIndicator = document.createElement('div');
-                        dropIndicator.className = 'drop-indicator';
-                        document.body.appendChild(dropIndicator);
-                    }
-                    
-                    // Diğer bileşenlere hedef sınıfı ekle
-                    document.querySelectorAll('.component-preview').forEach(comp => {
-                        if (comp !== this) {
-                            comp.classList.add('drag-target');
-                        }
-                    });
-                });
-                
-                component.addEventListener('dragend', function(e) {
-                    this.classList.remove('dragging');
-                    if (dropIndicator) {
-                        dropIndicator.remove();
-                        dropIndicator = null;
-                    }
-                    // Hedef sınıflarını kaldır
-                    document.querySelectorAll('.component-preview').forEach(comp => {
-                        comp.classList.remove('drag-target');
-                    });
-                    draggedComponent = null;
-                });
-                
-                component.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    if (draggedComponent === this) return;
-                    
-                    const rect = this.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    const mouseY = e.clientY;
-                    
-                    // Göstergeyi güncelle
-                    dropIndicator.style.display = 'block';
-                    dropIndicator.style.top = mouseY < midY ? `${rect.top}px` : `${rect.bottom}px`;
-                    dropIndicator.style.left = `${rect.left}px`;
-                    dropIndicator.style.width = `${rect.width}px`;
-                });
-                
-                component.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    if (draggedComponent === this) return;
-                    
-                    const rect = this.getBoundingClientRect();
-                    const midY = rect.top + rect.height / 2;
-                    const mouseY = e.clientY;
-                    
-                    if (draggedComponent) {
-                        if (mouseY < midY) {
-                            this.parentNode.insertBefore(draggedComponent, this);
-                        } else {
-                            this.parentNode.insertBefore(draggedComponent, this.nextSibling);
-                        }
-                        updateHTMLOutput();
-                    }
-                });
-            }
-            
-            // Yeni bileşenleri sürüklenebilir yap
+
+            // Bileşen öğelerini sürüklenebilir yap
             componentItems.forEach(item => {
                 item.addEventListener('dragstart', function(e) {
+                    console.log('Sürükleme başladı:', this.dataset.component); // Debug log
                     e.dataTransfer.setData('text/plain', this.dataset.component);
+                    e.dataTransfer.effectAllowed = 'move';
                     this.classList.add('dragging');
-                    
-                    // Sürükleme göstergesi oluştur
-                    if (!dropIndicator) {
-                        dropIndicator = document.createElement('div');
-                        dropIndicator.className = 'drop-indicator';
-                        document.body.appendChild(dropIndicator);
-                    }
                 });
-                
-                item.addEventListener('dragend', function(e) {
+
+                item.addEventListener('dragend', function() {
+                    console.log('Sürükleme bitti'); // Debug log
                     this.classList.remove('dragging');
                     if (dropIndicator) {
                         dropIndicator.remove();
@@ -535,68 +605,32 @@
                     }
                 });
             });
-            
+
             // Önizleme alanı olayları
             previewArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
                 this.classList.add('drag-over');
-                
-                const mouseY = e.clientY;
-                const components = Array.from(this.children).filter(child => 
-                    child.classList.contains('component-preview')
-                );
-                
-                if (components.length === 0) {
-                    dropIndicator.style.display = 'block';
-                    const rect = this.getBoundingClientRect();
-                    dropIndicator.style.top = `${rect.top + rect.height / 2}px`;
-                    dropIndicator.style.left = `${rect.left}px`;
-                    dropIndicator.style.width = `${rect.width}px`;
-                    return;
-                }
-                
-                let targetComponent = null;
-                let insertBefore = true;
-                let minDistance = Infinity;
-                
-                components.forEach(component => {
-                    const rect = component.getBoundingClientRect();
-                    const centerY = rect.top + rect.height / 2;
-                    const distance = Math.abs(mouseY - centerY);
-                    
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        targetComponent = component;
-                        insertBefore = mouseY < centerY;
-                    }
-                });
-                
-                if (targetComponent) {
-                    const rect = targetComponent.getBoundingClientRect();
-                    const indicatorY = insertBefore ? rect.top : rect.bottom;
-                    
-                    dropIndicator.style.display = 'block';
-                    dropIndicator.style.top = `${indicatorY}px`;
-                    dropIndicator.style.left = `${rect.left}px`;
-                    dropIndicator.style.width = `${rect.width}px`;
-                }
             });
-            
+
             previewArea.addEventListener('dragleave', function(e) {
                 if (!e.relatedTarget || !this.contains(e.relatedTarget)) {
                     this.classList.remove('drag-over');
-                    if (dropIndicator) {
-                        dropIndicator.style.display = 'none';
-                    }
                 }
             });
-            
+
             previewArea.addEventListener('drop', function(e) {
                 e.preventDefault();
-                this.classList.remove('drag-over');
+                console.log('Bırakma olayı tetiklendi'); // Debug log
                 
+                this.classList.remove('drag-over');
                 const componentType = e.dataTransfer.getData('text/plain');
-                if (componentType === 'moving-component') return; // Bileşen taşıma işlemi başka yerde ele alınıyor
+                console.log('Bırakılan bileşen tipi:', componentType); // Debug log
+                
+                if (!componentType || componentType === 'moving-component') {
+                    console.log('Geçersiz bileşen tipi veya taşıma işlemi'); // Debug log
+                    return;
+                }
                 
                 const mouseY = e.clientY;
                 const components = Array.from(this.children).filter(child => 
@@ -615,30 +649,33 @@
                     }
                 }
                 
-                const newComponent = addComponent(componentType, insertBefore);
-                if (newComponent) {
-                    setupComponentDragEvents(newComponent);
-                }
-                
-                if (dropIndicator) {
-                    dropIndicator.remove();
-                    dropIndicator = null;
+                try {
+                    const newComponent = addComponent(componentType, insertBefore);
+                    if (newComponent) {
+                        console.log('Yeni bileşen başarıyla eklendi:', componentType); // Debug log
+                        setupComponentDragEvents(newComponent);
+                    } else {
+                        console.error('Bileşen eklenemedi:', componentType); // Debug log
+                    }
+                } catch (error) {
+                    console.error('Bileşen eklenirken hata oluştu:', error); // Debug log
                 }
             });
-            
-            // Sayfa yüklendiğinde var olan bileşenleri sürüklenebilir yap
-            makeComponentsDraggable();
         }
         
         // Yeni bir bileşen ekle
         function addComponent(componentType, insertBefore = null) {
+            console.log('addComponent çağrıldı:', componentType); // Debug log
+            
             const templateId = `${componentType}-template`;
             const template = document.getElementById(templateId);
             
             if (!template) {
-                console.error(`Template not found: ${templateId}`);
+                console.error(`Template bulunamadı: ${templateId}`);
                 return null;
             }
+            
+            console.log('Template bulundu:', templateId); // Debug log
             
             const componentClone = template.content.cloneNode(true);
             const componentWrapper = document.createElement('div');
@@ -665,10 +702,12 @@
             componentWrapper.appendChild(controlsDiv);
             
             const previewArea = document.getElementById('previewArea');
+            console.log('Önizleme alanı bulundu:', previewArea); // Debug log
             
+            // Boş durum mesajını kaldır
             const emptyState = previewArea.querySelector('.empty-state');
             if (emptyState) {
-                previewArea.innerHTML = '';
+                emptyState.remove();
             }
             
             componentWrapper.style.opacity = '0';
@@ -676,16 +715,20 @@
             
             if (insertBefore) {
                 previewArea.insertBefore(componentWrapper, insertBefore);
+                console.log('Bileşen öncesine eklendi:', insertBefore); // Debug log
             } else {
                 previewArea.appendChild(componentWrapper);
+                console.log('Bileşen sona eklendi'); // Debug log
             }
             
-            setTimeout(() => {
+            // Animasyon ekle
+            requestAnimationFrame(() => {
                 componentWrapper.style.transition = 'all 0.3s ease';
                 componentWrapper.style.opacity = '1';
                 componentWrapper.style.transform = 'translateY(0)';
-            }, 10);
+            });
             
+            // Tıklama olayını ekle
             componentWrapper.addEventListener('click', function(e) {
                 if (!e.target.closest('.component-controls')) {
                     showComponentSettings(this);
@@ -693,6 +736,7 @@
             });
             
             updateHTMLOutput();
+            console.log('Bileşen başarıyla eklendi:', componentType); // Debug log
             return componentWrapper;
         }
         
@@ -780,6 +824,28 @@
                         </div>
                     `;
                     break;
+
+                case 'banner':
+                    settingsHTML += `
+                        <div class="mb-3">
+                            <label class="form-label">Banner Stili</label>
+                            <select class="form-select" onchange="updateBannerStyle(this)">
+                                <option value="primary" selected>Mavi (Varsayılan)</option>
+                                <option value="success">Yeşil</option>
+                                <option value="warning">Sarı</option>
+                                <option value="danger">Kırmızı</option>
+                                <option value="info">Açık Mavi</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Buton Göster</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" checked 
+                                       onchange="toggleBannerButton(this)">
+                            </div>
+                        </div>
+                    `;
+                    break;
                     
                 default:
                     settingsHTML += `
@@ -797,6 +863,43 @@
             // Gerçek uygulamada burada daha ayrıntılı işlemler yapılabilir
             console.log(`Updating ${property} for ${componentType} to ${input.value}`);
         }
+        
+        // Banner stilini güncelle
+        function updateBannerStyle(select) {
+            const selectedComponent = document.querySelector('.component-preview.selected');
+            if (selectedComponent && selectedComponent.getAttribute('data-component-type') === 'banner') {
+                const banner = selectedComponent.querySelector('.alert');
+                const button = selectedComponent.querySelector('.btn');
+                
+                // Mevcut alert sınıflarını kaldır
+                banner.classList.remove('alert-primary', 'alert-success', 'alert-warning', 'alert-danger', 'alert-info');
+                button.classList.remove('btn-primary', 'btn-success', 'btn-warning', 'btn-danger', 'btn-info');
+                
+                // Yeni sınıfları ekle
+                banner.classList.add(`alert-${select.value}`);
+                button.classList.add(`btn-${select.value}`);
+            }
+        }
+
+        // Banner butonunu göster/gizle
+        function toggleBannerButton(checkbox) {
+            const selectedComponent = document.querySelector('.component-preview.selected');
+            if (selectedComponent && selectedComponent.getAttribute('data-component-type') === 'banner') {
+                const buttonContainer = selectedComponent.querySelector('.ms-3');
+                buttonContainer.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        }
+
+        // Bileşen seçimini yönet
+        document.addEventListener('click', function(e) {
+            const componentPreview = e.target.closest('.component-preview');
+            document.querySelectorAll('.component-preview').forEach(comp => {
+                comp.classList.remove('selected');
+            });
+            if (componentPreview) {
+                componentPreview.classList.add('selected');
+            }
+        });
         
         // HTML çıktısını güncelle
         function updateHTMLOutput() {
@@ -887,6 +990,66 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // Bileşen sürükleme olaylarını ayarla
+        function setupComponentDragEvents(component) {
+            console.log('setupComponentDragEvents çağrıldı:', component); // Debug log
+            
+            component.addEventListener('dragstart', function(e) {
+                draggedComponent = this;
+                this.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', 'moving-component');
+                e.dataTransfer.effectAllowed = 'move';
+                
+                console.log('Bileşen sürükleme başladı:', this.getAttribute('data-component-type')); // Debug log
+            });
+            
+            component.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                draggedComponent = null;
+                console.log('Bileşen sürükleme bitti'); // Debug log
+            });
+            
+            component.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                if (draggedComponent === this) return;
+                
+                const rect = this.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+                
+                if (e.clientY < midY) {
+                    this.classList.add('shift-up');
+                    this.classList.remove('shift-down');
+                } else {
+                    this.classList.add('shift-down');
+                    this.classList.remove('shift-up');
+                }
+            });
+            
+            component.addEventListener('dragleave', function() {
+                this.classList.remove('shift-up', 'shift-down');
+            });
+            
+            component.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedComponent === this) return;
+                
+                const rect = this.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+                
+                if (draggedComponent) {
+                    if (e.clientY < midY) {
+                        this.parentNode.insertBefore(draggedComponent, this);
+                    } else {
+                        this.parentNode.insertBefore(draggedComponent, this.nextSibling);
+                    }
+                    updateHTMLOutput();
+                }
+                
+                this.classList.remove('shift-up', 'shift-down');
+                console.log('Bileşen yeniden sıralandı'); // Debug log
+            });
         }
     </script>
 </body>
