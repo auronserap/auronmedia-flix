@@ -179,7 +179,22 @@
         }
         .preview-area .component-preview {
             position: relative;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: move;
+            user-select: none;
+        }
+        .preview-area .component-preview:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .preview-area .component-preview.dragging {
+            opacity: 0.9;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            transform: scale(1.02);
+            z-index: 1000;
+        }
+        .preview-area .component-preview.drag-target {
+            border: 2px dashed #3498db;
+            background-color: rgba(52, 152, 219, 0.05);
         }
         .preview-area .component-preview.shift-up {
             transform: translateY(-10px);
@@ -415,8 +430,90 @@
             const previewArea = document.getElementById('previewArea');
             let dropIndicator = null;
             let lastShiftedComponent = null;
+            let draggedComponent = null;
             
-            // Sürüklenebilir bileşenleri ayarla
+            // Var olan bileşenleri de sürüklenebilir yap
+            function makeComponentsDraggable() {
+                const components = document.querySelectorAll('.component-preview');
+                components.forEach(component => {
+                    if (!component.hasAttribute('draggable')) {
+                        component.setAttribute('draggable', 'true');
+                        setupComponentDragEvents(component);
+                    }
+                });
+            }
+            
+            // Bileşen sürükleme olaylarını ayarla
+            function setupComponentDragEvents(component) {
+                component.addEventListener('dragstart', function(e) {
+                    draggedComponent = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.setData('text/plain', 'moving-component');
+                    e.dataTransfer.effectAllowed = 'move';
+                    
+                    // Sürükleme göstergesi oluştur
+                    if (!dropIndicator) {
+                        dropIndicator = document.createElement('div');
+                        dropIndicator.className = 'drop-indicator';
+                        document.body.appendChild(dropIndicator);
+                    }
+                    
+                    // Diğer bileşenlere hedef sınıfı ekle
+                    document.querySelectorAll('.component-preview').forEach(comp => {
+                        if (comp !== this) {
+                            comp.classList.add('drag-target');
+                        }
+                    });
+                });
+                
+                component.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    if (dropIndicator) {
+                        dropIndicator.remove();
+                        dropIndicator = null;
+                    }
+                    // Hedef sınıflarını kaldır
+                    document.querySelectorAll('.component-preview').forEach(comp => {
+                        comp.classList.remove('drag-target');
+                    });
+                    draggedComponent = null;
+                });
+                
+                component.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (draggedComponent === this) return;
+                    
+                    const rect = this.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    const mouseY = e.clientY;
+                    
+                    // Göstergeyi güncelle
+                    dropIndicator.style.display = 'block';
+                    dropIndicator.style.top = mouseY < midY ? `${rect.top}px` : `${rect.bottom}px`;
+                    dropIndicator.style.left = `${rect.left}px`;
+                    dropIndicator.style.width = `${rect.width}px`;
+                });
+                
+                component.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (draggedComponent === this) return;
+                    
+                    const rect = this.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    const mouseY = e.clientY;
+                    
+                    if (draggedComponent) {
+                        if (mouseY < midY) {
+                            this.parentNode.insertBefore(draggedComponent, this);
+                        } else {
+                            this.parentNode.insertBefore(draggedComponent, this.nextSibling);
+                        }
+                        updateHTMLOutput();
+                    }
+                });
+            }
+            
+            // Yeni bileşenleri sürüklenebilir yap
             componentItems.forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', this.dataset.component);
@@ -436,15 +533,10 @@
                         dropIndicator.remove();
                         dropIndicator = null;
                     }
-                    // Kaydırılmış bileşenleri sıfırla
-                    if (lastShiftedComponent) {
-                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
-                        lastShiftedComponent = null;
-                    }
                 });
             });
             
-            // Hedef alana bırakma işlemlerini ayarla
+            // Önizleme alanı olayları
             previewArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 this.classList.add('drag-over');
@@ -454,7 +546,6 @@
                     child.classList.contains('component-preview')
                 );
                 
-                // Boş alan kontrolü
                 if (components.length === 0) {
                     dropIndicator.style.display = 'block';
                     const rect = this.getBoundingClientRect();
@@ -464,7 +555,6 @@
                     return;
                 }
                 
-                // En yakın bileşeni ve konumu bul
                 let targetComponent = null;
                 let insertBefore = true;
                 let minDistance = Infinity;
@@ -485,26 +575,10 @@
                     const rect = targetComponent.getBoundingClientRect();
                     const indicatorY = insertBefore ? rect.top : rect.bottom;
                     
-                    // Göstergeyi güncelle
                     dropIndicator.style.display = 'block';
                     dropIndicator.style.top = `${indicatorY}px`;
                     dropIndicator.style.left = `${rect.left}px`;
                     dropIndicator.style.width = `${rect.width}px`;
-                    
-                    // Kaydırma efektini uygula
-                    if (lastShiftedComponent && lastShiftedComponent !== targetComponent) {
-                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
-                    }
-                    
-                    if (insertBefore) {
-                        targetComponent.classList.add('shift-down');
-                        targetComponent.classList.remove('shift-up');
-                    } else {
-                        targetComponent.classList.add('shift-up');
-                        targetComponent.classList.remove('shift-down');
-                    }
-                    
-                    lastShiftedComponent = targetComponent;
                 }
             });
             
@@ -514,50 +588,46 @@
                     if (dropIndicator) {
                         dropIndicator.style.display = 'none';
                     }
-                    if (lastShiftedComponent) {
-                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
-                        lastShiftedComponent = null;
-                    }
                 }
             });
             
             previewArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('drag-over');
-                const componentType = e.dataTransfer.getData('text/plain');
                 
-                // Gösterge konumuna göre bileşeni ekle
-                if (dropIndicator) {
-                    const mouseY = e.clientY;
-                    const components = Array.from(this.children).filter(child => 
-                        child.classList.contains('component-preview')
-                    );
-                    
-                    let insertBefore = null;
-                    
-                    if (components.length > 0) {
-                        for (let i = 0; i < components.length; i++) {
-                            const rect = components[i].getBoundingClientRect();
-                            if (mouseY < rect.bottom) {
-                                insertBefore = components[i];
-                                break;
-                            }
+                const componentType = e.dataTransfer.getData('text/plain');
+                if (componentType === 'moving-component') return; // Bileşen taşıma işlemi başka yerde ele alınıyor
+                
+                const mouseY = e.clientY;
+                const components = Array.from(this.children).filter(child => 
+                    child.classList.contains('component-preview')
+                );
+                
+                let insertBefore = null;
+                
+                if (components.length > 0) {
+                    for (let i = 0; i < components.length; i++) {
+                        const rect = components[i].getBoundingClientRect();
+                        if (mouseY < rect.bottom) {
+                            insertBefore = components[i];
+                            break;
                         }
                     }
-                    
-                    addComponent(componentType, insertBefore);
+                }
+                
+                const newComponent = addComponent(componentType, insertBefore);
+                if (newComponent) {
+                    setupComponentDragEvents(newComponent);
+                }
+                
+                if (dropIndicator) {
                     dropIndicator.remove();
                     dropIndicator = null;
-                    
-                    // Kaydırılmış bileşenleri sıfırla
-                    if (lastShiftedComponent) {
-                        lastShiftedComponent.classList.remove('shift-up', 'shift-down');
-                        lastShiftedComponent = null;
-                    }
-                } else {
-                    addComponent(componentType);
                 }
             });
+            
+            // Sayfa yüklendiğinde var olan bileşenleri sürüklenebilir yap
+            makeComponentsDraggable();
         }
         
         // Yeni bir bileşen ekle
@@ -567,13 +637,14 @@
             
             if (!template) {
                 console.error(`Template not found: ${templateId}`);
-                return;
+                return null;
             }
             
             const componentClone = template.content.cloneNode(true);
             const componentWrapper = document.createElement('div');
             componentWrapper.className = 'component-preview';
             componentWrapper.setAttribute('data-component-type', componentType);
+            componentWrapper.setAttribute('draggable', 'true');
             
             // Kontrol butonları ekle
             const controlsDiv = document.createElement('div');
@@ -593,16 +664,13 @@
             componentWrapper.appendChild(componentClone);
             componentWrapper.appendChild(controlsDiv);
             
-            // Bileşeni önizleme alanına ekle
             const previewArea = document.getElementById('previewArea');
             
-            // Eğer boş mesaj varsa kaldır
             const emptyState = previewArea.querySelector('.empty-state');
             if (emptyState) {
                 previewArea.innerHTML = '';
             }
             
-            // Animasyonlu ekleme
             componentWrapper.style.opacity = '0';
             componentWrapper.style.transform = 'translateY(20px)';
             
@@ -612,22 +680,20 @@
                 previewArea.appendChild(componentWrapper);
             }
             
-            // Animasyonu başlat
             setTimeout(() => {
                 componentWrapper.style.transition = 'all 0.3s ease';
                 componentWrapper.style.opacity = '1';
                 componentWrapper.style.transform = 'translateY(0)';
             }, 10);
             
-            // Bileşen tıklama olayını ekle
             componentWrapper.addEventListener('click', function(e) {
                 if (!e.target.closest('.component-controls')) {
                     showComponentSettings(this);
                 }
             });
             
-            // HTML çıktısını güncelle
             updateHTMLOutput();
+            return componentWrapper;
         }
         
         // Bileşeni taşı
