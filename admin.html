@@ -165,8 +165,17 @@
             border-top: 1px solid #ddd;
             text-align: right;
         }
-        .add-product-btn {
+        .top-buttons {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 20px;
+        }
+        .download-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        .download-btn:hover {
+            background-color: #e67e22;
         }
         .notification {
             position: fixed;
@@ -185,6 +194,16 @@
             background-color: #e74c3c;
             color: white;
         }
+        .alert {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .alert strong {
+            color: #f39c12;
+        }
     </style>
 </head>
 <body>
@@ -193,7 +212,14 @@
             <h1>AuronMedia - Ürün Yönetimi</h1>
         </header>
         
-        <button class="btn btn-success add-product-btn" onclick="openAddProductModal()">Yeni Ürün Ekle</button>
+        <div class="alert">
+            <strong>Not:</strong> Bu yönetim paneli demo amaçlıdır. Yaptığınız değişiklikler sadece tarayıcınızın hafızasında saklanır ve sayfayı kapatıp açtığınızda kaybolmaz, ancak gerçek JSON dosyasına kaydedilmez. Değişikliklerinizi kalıcı yapmak için "JSON Dosyasını İndir" butonunu kullanıp, indirilen dosyayı GitHub reponuza yüklemeniz gerekir.
+        </div>
+        
+        <div class="top-buttons">
+            <button class="btn btn-success" onclick="openAddProductModal()">Yeni Ürün Ekle</button>
+            <button class="btn download-btn" onclick="downloadJSON()">JSON Dosyasını İndir</button>
+        </div>
         
         <div class="product-list" id="productList">
             <!-- Ürünler JavaScript ile burada listelenecek -->
@@ -265,11 +291,24 @@
         
         // Sayfa yüklendiğinde
         document.addEventListener('DOMContentLoaded', function() {
-            loadProducts();
+            // Önce localStorage'dan yüklemeyi deneyelim
+            const savedData = localStorage.getItem('productsData');
+            if (savedData) {
+                try {
+                    productsData = JSON.parse(savedData);
+                    renderProductList();
+                    showNotification('Kaydedilmiş ürün verileri yüklendi!', 'success');
+                } catch (e) {
+                    console.error('Kaydedilmiş veri okunamadı:', e);
+                    loadProductsFromJSON();
+                }
+            } else {
+                loadProductsFromJSON();
+            }
         });
         
-        // Ürünleri yükle
-        function loadProducts() {
+        // JSON dosyasından ürünleri yükle
+        function loadProductsFromJSON() {
             fetch('products.json')
                 .then(response => response.json())
                 .then(data => {
@@ -454,16 +493,12 @@
             // Ürünü kaydet
             productsData.products[id] = product;
             
-            // JSON dosyasına kaydet (gerçekte bu işlem sunucu tarafında yapılır)
-            // Bu demo için, değişikliği tarayıcı belleğinde tutacağız
-            // Not: Gerçek bir uygulamada bu kısmı backend API ile yapmalısınız
-            
             // UI'ı güncelle
             renderProductList();
             closeModal();
-            showNotification('Ürün başarıyla kaydedildi!', 'success');
+            showNotification('Ürün başarıyla kaydedildi! Kalıcı olarak saklamak için "JSON Dosyasını İndir" butonunu kullanın.', 'success');
             
-            // LocalStorage'a geçici olarak kaydet (demo amaçlı)
+            // LocalStorage'a kaydet
             localStorage.setItem('productsData', JSON.stringify(productsData));
         }
         
@@ -472,16 +507,37 @@
             if (confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
                 delete productsData.products[id];
                 renderProductList();
-                showNotification('Ürün başarıyla silindi!', 'success');
+                showNotification('Ürün başarıyla silindi! Kalıcı olarak saklamak için "JSON Dosyasını İndir" butonunu kullanın.', 'success');
                 
-                // LocalStorage'a geçici olarak kaydet (demo amaçlı)
+                // LocalStorage'a kaydet
                 localStorage.setItem('productsData', JSON.stringify(productsData));
             }
         }
         
+        // JSON dosyasını indir
+        function downloadJSON() {
+            // Düzgün biçimlendirilmiş JSON oluştur
+            const jsonString = JSON.stringify(productsData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Download linki oluştur
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.json';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Temizlik
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('JSON dosyası başarıyla indirildi. Bu dosyayı GitHub reponuza yükleyerek değişikliklerinizi kalıcı yapabilirsiniz.', 'success');
+        }
+        
         // Yeni ürün ID'si oluştur
         function generateProductId() {
-            // Örnek EAN formatında ID oluştur (Gerçek bir uygulamada doğru bir şekilde yapılmalı)
+            // Örnek EAN formatında ID oluştur
             const prefix = '8681987';
             const randomPart = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
             return prefix + randomPart;
@@ -496,17 +552,7 @@
             
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Sayfa yüklendiğinde localStorage'dan verileri kontrol et (demo amaçlı)
-        const savedData = localStorage.getItem('productsData');
-        if (savedData) {
-            try {
-                productsData = JSON.parse(savedData);
-            } catch (e) {
-                console.error('Kaydedilmiş veri okunamadı:', e);
-            }
+            }, 6000);
         }
     </script>
 </body>
